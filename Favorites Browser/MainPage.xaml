@@ -1,0 +1,261 @@
+﻿<phone:PhoneApplicationPage
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:view="clr-namespace:Favorites_Browser.View"
+    xmlns:common="clr-namespace:Favorites_Browser.Common"
+    xmlns:UI="clr-namespace:Microsoft.Advertising.Mobile.UI;assembly=Microsoft.Advertising.Mobile.UI"
+    x:Class="Favorites_Browser.MainPage"
+    mc:Ignorable="d"
+    SupportedOrientations="Portrait" Orientation="Portrait"
+    shell:SystemTray.IsVisible="True">
+
+    <phone:PhoneApplicationPage.Resources>
+        <common:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <common:BooleanNegationConverter x:Key="BooleanNegationConverter"/>
+        <DataTemplate x:Key="AdTemplate">
+            <Grid Width="480" Height="100" Margin="0,0,0,0" Background="Transparent">
+                <StackPanel Background="Transparent" Orientation="Vertical">
+                    <UI:AdControl 
+                        ApplicationId="test_client" 
+                        AdUnitId="TextAd" 
+                        Width="480"
+                        Height="80" 
+                        Margin="0,0,0,0" 
+                        HorizontalAlignment="Left" 
+                        VerticalAlignment="Top"/>
+                </StackPanel >
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Name="FolderListView">
+            <Border BorderBrush="DarkGray" BorderThickness=".5">
+                <Grid Width="456" Height="100" Margin="0,0,0,3" Background="White" ToolTipService.ToolTip="{Binding Title}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox HorizontalAlignment="Left" BorderBrush="Gray" Style="{StaticResource WP7CheckBoxStyle}" Margin="-5,0,-25,0" VerticalAlignment="Center" IsChecked="{Binding IsChecked, Mode=TwoWay}" Visibility="{Binding ShowCheckBox, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,0,0,0">
+                        <Image x:Name="Image" Height="50" Width="50" HorizontalAlignment="Center" Stretch="UniformToFill" VerticalAlignment="Center" Source="/Assets/folder_phone_blue.png" />
+                    </StackPanel>
+                    <Grid Grid.Column="2" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Margin="10,20,10,0" Grid.Row="0" HorizontalAlignment="Left" Text="{Binding Title}" FontSize="20" Foreground="Black" TextWrapping="NoWrap" />
+                        <StackPanel Grid.Row="1"  Margin="10,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Left" Orientation="Horizontal" >
+                            <TextBlock  Text="{Binding Updated_time}" Foreground="Black" Opacity=".6"   />
+                            <TextBlock  Margin="180,5,5,5" Text="{Binding Count}" Foreground="Black" Opacity=".6" TextWrapping="NoWrap" />
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Name="FileListView">
+            <Border BorderBrush="DarkGray" BorderThickness=".5">
+                <Grid Width="456" Height="100" Margin="0,0,0,3" Background="White" ToolTipService.ToolTip="{Binding Title}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox HorizontalAlignment="Left" BorderBrush="Gray" Style="{StaticResource WP7CheckBoxStyle}" Margin="-5,0,-25,0" VerticalAlignment="Center" IsChecked="{Binding IsChecked, Mode=TwoWay}" Visibility="{Binding ShowCheckBox, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <StackPanel Grid.Column="1" Margin="10,0,0,5" VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal" >
+                        <!--<CheckBox HorizontalAlignment="Left" BorderBrush="Black" IsChecked="{Binding IsChecked, Mode=TwoWay}" Visibility="Visible" />-->
+                        <Border Background="{Binding TileBackground}" Width="47" Height="51" HorizontalAlignment="Center" >
+                            <Border x:Name="IconBackground" Background="{Binding IconBackground}" Width="45" Height="49" HorizontalAlignment="Center">
+                                <Image Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="None" >
+                                    <Image.Source>
+                                        <BitmapImage UriSource="{Binding ImagePath}" />
+                                    </Image.Source>
+                                </Image>
+                            </Border>
+                        </Border>
+                    </StackPanel>
+                    <Grid Grid.Column="2">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0">
+                            <TextBlock Text="{Binding Title}" Foreground="Black" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Grid>
+
+                </Grid>
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Key="ListGroupHeaderTemplate">
+            <Border Background="Transparent">
+                <Border Background="Transparent" Margin="5" Height="32" HorizontalAlignment="Left">
+                    <TextBlock Text="{Binding Key}" Foreground="Black" FontWeight="Bold" FontSize="28" Padding="6" 
+        				FontFamily="{StaticResource PhoneFontFamilySemiLight}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                </Border>
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Name="myListViewTileTemplateSelector">
+            <common:ListViewTileTemplateSelector
+        		Content="{Binding}"
+        		FileItemTemplate="{StaticResource FileListView}"
+        		FolderItemTemplate="{StaticResource FolderListView}"
+                AdItemTemplate="{StaticResource AdTemplate}"
+                />
+        </DataTemplate>
+    </phone:PhoneApplicationPage.Resources>
+    <phone:PhoneApplicationPage.FontFamily>
+        <StaticResource ResourceKey="PhoneFontFamilyNormal"/>
+    </phone:PhoneApplicationPage.FontFamily>
+    <phone:PhoneApplicationPage.FontSize>
+        <StaticResource ResourceKey="PhoneFontSizeNormal"/>
+    </phone:PhoneApplicationPage.FontSize>
+    <phone:PhoneApplicationPage.Foreground>
+        <StaticResource ResourceKey="PhoneForegroundBrush"/>
+    </phone:PhoneApplicationPage.Foreground>
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="#EBECEE" >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <!-- LOCALIZATION NOTE:
+            To localize the displayed strings copy their values to appropriately named
+            keys in the app's neutral language resource file (AppResources.resx) then
+            replace the hard-coded text value between the attributes' quotation marks
+            with the binding clause whose path points to that string name.
+
+            For example:
+
+                Text="{Binding Path=LocalizedResources.ApplicationTitle, Source={StaticResource LocalizedStrings}}"
+
+            This binding points to the template's string resource named "ApplicationTitle".
+
+            Adding supported languages in the Project Properties tab will create a
+            new resx file per language that can carry the translated values of your
+            UI strings. The binding in these examples will cause the value of the
+            attributes to be drawn from the .resx file that matches the
+            CurrentUICulture of the app at run time.
+         -->
+
+        <!--TitlePanel contains the name of the application and page title-->
+        <Grid Background="DarkGray">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Image Grid.Column="0" Margin="5,0,0,0" Height="45" Source="/Assets/RF_logo_50x50.png"/>
+            <toolkit:AutoCompleteBox Grid.Column="1" x:Name="SearchBox" TextChanged="OnSearchTextChange" KeyUp="SearchBox_KeyUp" InputScope="Url" FilterMode="Contains" SelectionChanged="SearchBox_SelectionChanged" Visibility="Collapsed"  Width="370" Height="70" Margin="-8,0,0,0" />
+            <Grid VerticalAlignment="Center" Grid.Column="1" Margin="12,0,12,-10">
+                <ListBox x:Name="FoldersList">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Title}" Foreground="Black" FontSize="20" />
+                                <TextBlock Text="&gt;" Foreground="Black" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+            <!--<Image Grid.Column="2" HorizontalAlignment="Left" Height="60" Margin="-30,0,10,0" Tap="Search_Tap" Source="/Assets/feature.search.png" />-->
+        </Grid>
+
+        <!--Uncomment to see an alignment grid to help ensure your controls are
+            aligned on common boundaries.  The image has a top margin of -32px to
+            account for the System Tray. Set this to 0 (or remove the margin altogether)
+            if the System Tray is hidden.
+
+            Before shipping remove this XAML and the image itself.-->
+        <!--<Image Source="/Assets/AlignmentGrid.png" VerticalAlignment="Top" Height="800" Width="480" Margin="0,-32,0,0" Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" />-->
+
+        <ProgressBar Margin="0,5,0,0" x:Name="ProgressBar" Grid.Row="1"  Foreground="Black"  IsIndeterminate="true" Visibility="Collapsed" />
+        <!--ContentPanel - place additional content here-->
+        <Grid x:Name="ContentPanel" Grid.Row="2" Margin="12,0,12,0" >
+            <phone:LongListSelector
+				x:Name="Bookmarks"
+				LayoutMode="List"
+				IsGroupingEnabled="True"
+				ScrollViewer.VerticalScrollBarVisibility="Auto"
+				Background="Transparent"
+				ItemTemplate="{StaticResource myListViewTileTemplateSelector}"
+				Tap="Bookmarks_Tap"
+				GroupHeaderTemplate="{StaticResource ListGroupHeaderTemplate}"
+				HideEmptyGroups ="true"
+            />
+        </Grid>
+        <!-- No Selection: show Create Folder and refresh -->
+        <!-- Selection: Rename, Delete, Move, Share(email,facebook etc) -->
+
+        <Popup x:Name="CreateFolderPopUP" IsOpen="False" >
+            <Border BorderBrush="Black" Background="DarkGray" BorderThickness="2" Width="400" Height="180" >
+                <Grid VerticalAlignment="Center" Background="DarkGray" x:Name="popGrid" Width="Auto" Height="Auto" >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Margin="10,0,0,10" Grid.Row="0" FontSize="20" Text="Folder Name"  />
+                    <view:ClearableTextBox Name="CreateFolderName" Margin="10,0,20,0" Grid.Row="1" FontSize="18" />
+                    <!--<TextBox Grid.Row="1" Name="CreateFolderName" FontSize="18" />-->
+                    <Button Grid.Row="2" x:Name="CreateFolderButton" BorderThickness="0" FontSize="20" Content="Create" HorizontalAlignment="Right" Click="PopupCreateFolder_Click"  />
+                    <Button Grid.Row="2" x:Name="UpdateFolderButton" BorderThickness="0" FontSize="20" Content="Update" Visibility="Collapsed" HorizontalAlignment="Right" Click="PopupUpdateFolder_Click"  />
+                    <Button Grid.Row="2" Margin="-10,0,0,0" x:Name="CreateFolderCancel" BorderThickness="0" FontSize="20" Content="Cancel" HorizontalAlignment="Left" Click="CreateFolderCancel_Click"  />
+                </Grid>
+            </Border>
+        </Popup>
+
+        <Popup x:Name="AddBookmarkPopup" IsOpen="False" >
+            <Border x:Name="AddBookMarkBorder" BorderBrush="Black" Background="DarkGray" BorderThickness="2"  Width="400" Height="230" >
+                <Grid VerticalAlignment="Center" Background="DarkGray" Width="Auto" Height="Auto" >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Margin="10,10,0,10" Grid.Row="0" FontSize="20" Text="Bookmark Name" />
+                    <!--<TextBox Grid.Row="1" Name="AddBookmarkName" TextWrapping="NoWrap" />-->
+                    <view:ClearableTextBox Name="AddBookmarkName" Grid.Row="1" Margin="10,0,20,0" FontSize="18" />
+                    <TextBlock Margin="10,10,0,10" FontSize="20" Grid.Row="2" Text="Bookmark URL" />
+                    <!--<TextBox  Grid.Row="3" Name="AddBookmarkURL" TextWrapping="NoWrap" />-->
+                    <view:ClearableTextBox Name="AddBookmarkURL" Grid.Row="3" Margin="10,0,20,0" FontSize="18" />
+                    <!--<Button Grid.Row="4" x:Name="CreateBookmarkButton" Content="Create" HorizontalAlignment="Right" Margin="10" Click="PopupAddBookmark_Click"  />-->
+                    <Button Grid.Row="4" x:Name="UpdateBookmarkButton" BorderThickness="0" FontSize="20"  Content="Update" HorizontalAlignment="Right" Click="PopupUpdateBookmark_Click"  />
+                    <Button Grid.Row="4" BorderThickness="0" FontSize="20" Margin="-10,0,0,0"  Content="Cancel" HorizontalAlignment="Left" Click="UpdateBookmarkCancel_Click"  />
+                </Grid>
+            </Border>
+        </Popup>
+
+        <Popup x:Name="SelectDestinationPopup" Loaded="SelectDestinationPopup_Loaded" IsOpen="False" >
+            <Border BorderBrush="Black" Background="White" BorderThickness="2" Width="365" Height="450" >
+                <view:SelectFolderUserControl x:Name="SelectFolderUserCntl" FolderSelectedEvent="FolderSelected_Click" CancelEvent="SelectFolderUserCntl_CancelEvent"  />
+            </Border>
+        </Popup>
+
+        <StackPanel x:Name="DisableMask" Grid.Row="2" Visibility="Collapsed" Background="LightGray" Opacity=".4"/>
+    </Grid>
+
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar BackgroundColor="DarkGray" IsVisible="True" IsMenuEnabled="True">
+            <shell:ApplicationBarIconButton x:Name="AppBarButton_Add" IconUri="/Assets/add.png" Click="AppBarButton_Add_Click" Text="Folder"/>
+            <shell:ApplicationBarIconButton x:Name="AppBarButton_Select" IconUri="/Assets/select_check.png" Click="AppBarButton_Select_Click" Text="Edit List"/>
+            <shell:ApplicationBarIconButton x:Name="AppBarButton_Refresh" IconUri="/Assets/refresh.png" Click="AppBarButton_Refresh_Click" Text="Refresh"/>
+            <shell:ApplicationBarIconButton x:Name="AppBarButton_Search" IconUri="/Assets/feature.search.png" Click="AppBarButton_Search_Click" Text="Search"/>
+            <shell:ApplicationBar.MenuItems>
+                <shell:ApplicationBarMenuItem Text="Import IE Favorites"/>
+                <shell:ApplicationBarMenuItem Text="Help"/>
+            </shell:ApplicationBar.MenuItems>
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
+
+
+</phone:PhoneApplicationPage>

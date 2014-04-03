@@ -1,0 +1,25 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    xmlns:common="clr-namespace:Favorites_Browser.Common"
+    >
+    <Style TargetType="TextBlock" x:Key="PopupTitleText">
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="Margin" Value="10,10,0,0"/>
+    </Style>
+    <Style TargetType="TextBox" x:Key="PopupTextBox">
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    
+    
+
+
+
+
+</ResourceDictionary>
